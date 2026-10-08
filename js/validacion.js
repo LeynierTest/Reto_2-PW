@@ -12,7 +12,6 @@ const errorConfirmacion = document.getElementById("errorConfirmacion");
 
 const mensajeGeneral = document.getElementById("mensajeGeneral");
 
-
 function limpiarErrores() {
     errorNombre.textContent = "";
     errorCi.textContent = "";
@@ -27,76 +26,140 @@ function limpiarErrores() {
     confirmacion.classList.remove("input-error", "input-ok");
 }
 
+function marcarCampo(campo, elementoError, mensaje) {
+    campo.classList.remove("input-error", "input-ok");
+    elementoError.textContent = "";
 
-function validarNombre() {
-    if (nombre.value.trim() === "") {
-        errorNombre.textContent = "El nombre no puede estar vacío.";
-        nombre.classList.add("input-error");
+    if (mensaje !== "") {
+        elementoError.textContent = mensaje;
+        campo.classList.add("input-error");
         return false;
     }
 
-    nombre.classList.add("input-ok");
+    campo.classList.add("input-ok");
     return true;
 }
 
+function validarNombre() {
+    const valor = nombre.value.trim();
+
+    if (valor === "") {
+        return marcarCampo(
+            nombre,
+            errorNombre,
+            "El nombre no puede estar vacío."
+        );
+    }
+
+    if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$/.test(valor)) {
+        return marcarCampo(
+            nombre,
+            errorNombre,
+            "El nombre solo debe contener letras."
+        );
+    }
+
+    return marcarCampo(nombre, errorNombre, "");
+}
 
 function validarCI() {
     const valor = ci.value.trim();
 
     if (valor === "") {
-        errorCi.textContent = "El CI es obligatorio.";
-        ci.classList.add("input-error");
-        return false;
+        return marcarCampo(
+            ci,
+            errorCi,
+            "El CI es obligatorio."
+        );
     }
 
     if (!/^[0-9]+$/.test(valor)) {
-        errorCi.textContent = "El CI solo debe contener números.";
-        ci.classList.add("input-error");
-        return false;
+        return marcarCampo(
+            ci,
+            errorCi,
+            "El CI solo debe contener números."
+        );
     }
 
     if (valor.length < 11) {
-        errorCi.textContent = "El CI debe tener como mínimo 11 caracteres.";
-        ci.classList.add("input-error");
-        return false;
+        return marcarCampo(
+            ci,
+            errorCi,
+            "El CI debe tener como mínimo 11 caracteres."
+        );
     }
 
-    ci.classList.add("input-ok");
-    return true;
+    return marcarCampo(ci, errorCi, "");
 }
-
 
 function validarPassword() {
     if (password.value === "") {
-        errorPassword.textContent = "La contraseña no puede estar vacía.";
-        password.classList.add("input-error");
-        return false;
+        return marcarCampo(
+            password,
+            errorPassword,
+            "La contraseña no puede estar vacía."
+        );
     }
 
-    password.classList.add("input-ok");
-    return true;
+    return marcarCampo(password, errorPassword, "");
 }
-
 
 function validarConfirmacion() {
     if (confirmacion.value === "") {
-        errorConfirmacion.textContent =
-            "Debe confirmar la contraseña.";
-        confirmacion.classList.add("input-error");
-        return false;
+        return marcarCampo(
+            confirmacion,
+            errorConfirmacion,
+            "Debe confirmar la contraseña."
+        );
     }
 
     if (confirmacion.value !== password.value) {
-        errorConfirmacion.textContent =
-            "Las contraseñas deben ser iguales.";
-        confirmacion.classList.add("input-error");
-        return false;
+        return marcarCampo(
+            confirmacion,
+            errorConfirmacion,
+            "Las contraseñas deben ser iguales."
+        );
     }
 
-    confirmacion.classList.add("input-ok");
-    return true;
+    return marcarCampo(confirmacion, errorConfirmacion, "");
 }
 
+nombre.addEventListener("input", function() {
+    validarNombre();
+    mensajeGeneral.textContent = "";
+    mensajeGeneral.className = "";
+});
+
+nombre.addEventListener("blur", validarNombre);
+
+ci.addEventListener("input", function() {
+    validarCI();
+    mensajeGeneral.textContent = "";
+    mensajeGeneral.className = "";
+});
+
+ci.addEventListener("blur", validarCI);
+
+password.addEventListener("input", function() {
+    validarPassword();
+
+    if (confirmacion.value !== "") {
+        validarConfirmacion();
+    }
+
+    mensajeGeneral.textContent = "";
+    mensajeGeneral.className = "";
+});
+
+password.addEventListener("blur", validarPassword);
+
+confirmacion.addEventListener("input", function() {
+    validarConfirmacion();
+    mensajeGeneral.textContent = "";
+    mensajeGeneral.className = "";
+});
+
+confirmacion.addEventListener("blur", validarConfirmacion);
 
 formulario.addEventListener("submit", function(event) {
     event.preventDefault();
@@ -124,9 +187,6 @@ formulario.addEventListener("submit", function(event) {
     }
 });
 
-
 formulario.addEventListener("reset", function() {
     limpiarErrores();
 });
-
-
